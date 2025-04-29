@@ -25,6 +25,7 @@ def check_dodgers_result():
     url = f"https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates={yesterday}"
     response = requests.get(url)
     data = response.json()
+
     for event in data.get("events", []):
         try:
             competition = event["competitions"][0]
@@ -32,14 +33,17 @@ def check_dodgers_result():
 
             for team in teams:
                 if team["team"]["displayName"] == TEAM_NAME:
-                    if team.get("winner"):
-                        return True  # Dodgers won
-                    else:
-                        return False  # Dodgers lost
+                    is_home = team["homeAway"] == "home"
+                    won = team.get("winner", False)
+
+                    if is_home and won:
+                        return True  # Dodgers won a home game
+                    elif is_home and not won:
+                        return False  # Dodgers lost a home game
         except Exception as e:
             print("Error parsing event:", e)
 
-    return None  # No game found
+    return None  # No home game was found yesterday
 
 
 def send_email():
