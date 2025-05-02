@@ -47,61 +47,27 @@ def check_dodgers_result():
     return None  # No home game was found yesterday
 
 
-def send_email(outcome):
-    if outcome == "win":
+def send_email(result):
+    # Read the HTML template based on the result
+    if result is True:
+        with open("templates/dodgers_win.html", "r") as file:
+            email_body = file.read()
         subject = "🎉 Dodgers Victory Alert! 🎉"
-        body = """
-        <html>
-          <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
-            <h2 style="color: #005A9C;">🎉 Home Run News! 🎉</h2>
-            <p>The <strong>Dodgers</strong> crushed it at <em>home</em> yesterday!</p>
-            <p style="font-size: 1.2em;">💙⚾️ Time to break out the peanuts and Cracker Jack! ⚾️💙</p>
-            <hr />
-          </body>
-        </html>
-        """
-    elif outcome == "loss":
-        subject = "😢 Dodgers Game Loss Update"
-        body = """
-        <html>
-          <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
-            <h2 style="color: #C41E3A;">💔 Tough Luck, Dodgers 💔</h2>
-            <p>Unfortunately, the <strong>Dodgers</strong> didn't win yesterday.</p>
-            <p style="font-size: 1.2em;">But hey, there's always the next game! 💪</p>
-            <hr />
-          </body>
-        </html>
-        """
+    elif result is False:
+        with open("templates/dodgers_loss.html", "r") as file:
+            email_body = file.read()
+        subject = "💔 Dodgers Lost Yesterday 💔"
     else:
-        subject = "🤷‍♂️ No Dodgers Game Yesterday"
-        body = """
-        <html>
-          <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
-            <h2 style="color: #9E9E9E;">No Game Yesterday? 🤷‍♂️</h2>
-            <p>It looks like there was no game for the <strong>Dodgers</strong> yesterday.</p>
-            <p style="font-size: 1.2em;">We'll catch them next time!</p>
-            <hr />
-          </body>
-        </html>
-        """
+        with open("templates/no_game.html", "r") as file:
+            email_body = file.read()
+        subject = "⚾️ No Dodgers Game Yesterday ⚾️"
 
-    # Create the email
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
+    msg = MIMEMultipart()
+    msg["Subject"] = subject  # Updated subject based on result
     msg["From"] = EMAIL_FROM
     msg["To"] = EMAIL_TO
+    msg.attach(MIMEText(email_body, "html"))
 
-    # Text version (fallback for non-HTML clients)
-    text = "The Dodgers game result: " + subject
-
-    # HTML version
-    part1 = MIMEText(text, "plain")
-    part2 = MIMEText(body, "html")
-
-    msg.attach(part1)
-    msg.attach(part2)
-
-    # Send the email
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.starttls()
         server.login(SMTP_USER, SMTP_PASS)
@@ -110,16 +76,8 @@ def send_email(outcome):
 
 def main():
     result = check_dodgers_result()
-    print(result)
-    if result is True:
-        print("Dodgers win yesterday.")
-        send_email("win")
-    elif result is False:
-        print("Dodgers did not win yesterday.")
-        send_email("loss")
-    else:
-        print("No game was found yesterday.")
-        send_email("none")
+    print(result, f"Dodger Game Result {get_yesterday_date()}")
+    send_email(result)
 
 
 if __name__ == "__main__":
