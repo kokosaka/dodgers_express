@@ -1,24 +1,25 @@
-# Use Python base image that supports ARM (Apple Silicon)
-FROM python:3.10-slim
+# Use Python 3.12 base image (slim, ARM-compatible)
+FROM python:3.12-slim
 
 # Set timezone
 ENV TZ=America/Los_Angeles
 
-# Create app directory
+# Create working directory
 WORKDIR /app
 
-# Copy all files
+# Copy necessary files
 COPY requirements.txt ./
 COPY main.py ./
 COPY .env ./
 COPY crontab.txt ./
 COPY start.sh ./
 
-# Install Python dependencies and cron
+# Install cron and dependencies
 RUN apt-get update && apt-get install -y cron && \
     pip install --no-cache-dir -r requirements.txt && \
     chmod +x start.sh && \
+    mkdir -p /app/logs && \
     crontab crontab.txt
 
-# Run cron in foreground
+# Run the cron scheduler and our script
 CMD ["./start.sh"]

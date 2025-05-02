@@ -1,11 +1,14 @@
 version: "3.9"
 
 services:
-  dodgers-alert:
-    build: .
-    container_name: dodgers-alert
+  dodgers-express:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dodgers-express
     restart: unless-stopped
+    env_file:
+      - .env
     volumes:
-      - ./logs:/var/log  # Optional: persistent logs
-    environment:
-      TZ: America/Los_Angeles
+      - ./logs:/app/logs  # Persist logs on host
+    tty: true
