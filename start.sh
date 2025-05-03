@@ -1,7 +1,16 @@
 #!/bin/bash
 
+cd /app
+
+# Ensure logs directory exists
+mkdir -p /app/logs
+
 LOG_FILE="/app/logs/dodgers_express_$(date '+%Y-%m-%d').log"
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+
+set -a
+source /app/.env
+set +a
 
 echo "[$TIMESTAMP] 🏁 Starting Dodgers Express script..." | tee -a "$LOG_FILE"
 

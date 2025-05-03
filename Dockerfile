@@ -7,12 +7,13 @@ ENV TZ=America/Los_Angeles
 # Create working directory
 WORKDIR /app
 
-# Copy necessary files
+# Copy all files
 COPY requirements.txt ./
 COPY main.py ./
 COPY .env ./
 COPY crontab.txt ./
 COPY start.sh ./
+COPY templates/ ./templates/
 
 # Install cron and dependencies
 RUN apt-get update && apt-get install -y cron && \
@@ -22,4 +23,9 @@ RUN apt-get update && apt-get install -y cron && \
     crontab crontab.txt
 
 # Run the cron scheduler and our script
-CMD ["./start.sh"]
+# Copy crontab and install it
+RUN crontab crontab.txt
+
+# Start cron in foreground
+CMD ["cron", "-f"]
+
