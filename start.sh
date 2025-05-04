@@ -25,7 +25,7 @@ for VAR in "${REQUIRED_VARS[@]}"; do
 done
 
 # Run the script and log output
-if python main.py >> "$LOG_FILE" 2>&1; then
+if /usr/local/bin/python main.py >> "$LOG_FILE" 2>&1; then
     echo "[$TIMESTAMP] ✅ Script completed successfully." | tee -a "$LOG_FILE"
 else
     echo "[$TIMESTAMP] ❌ Script failed to run." | tee -a "$LOG_FILE"

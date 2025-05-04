@@ -14,6 +14,7 @@ COPY .env ./
 COPY crontab.txt ./
 COPY start.sh ./
 COPY templates/ ./templates/
+COPY static/ ./static/
 
 # Install cron and dependencies
 RUN apt-get update && apt-get install -y cron && \
@@ -21,6 +22,11 @@ RUN apt-get update && apt-get install -y cron && \
     chmod +x start.sh && \
     mkdir -p /app/logs && \
     crontab crontab.txt
+
+# Set the time zone to your desired time zone (e.g., America/Los_Angeles)
+RUN apt-get update && apt-get install -y tzdata \
+    && cp /usr/share/zoneinfo/America/Los_Angeles /etc/localtime \
+    && echo "America/Los_Angeles" > /etc/timezone 
 
 # Run the cron scheduler and our script
 # Copy crontab and install it
