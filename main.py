@@ -10,12 +10,13 @@ load_dotenv()
 
 TEAM_NAME = "Los Angeles Dodgers"
 EMAIL_FROM = os.getenv("EMAIL_FROM")
-EMAIL_TO = os.getenv("EMAIL_TO")
 SMTP_SERVER = os.getenv("SMTP_SERVER")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASS = os.getenv("SMTP_PASS")
 
+email_to_list = os.getenv("EMAIL_TO", "").split(",")
+email_to_list = [email.strip() for email in email_to_list if email.strip()]
 
 def get_yesterday_date():
     return (datetime.now() - timedelta(days=1)).date()
@@ -65,19 +66,19 @@ def send_email(result):
     msg = MIMEMultipart()
     msg["Subject"] = subject  # Updated subject based on result
     msg["From"] = EMAIL_FROM
-    msg["To"] = EMAIL_TO
+    msg["To"] = ", ".join(email_to_list) 
     msg.attach(MIMEText(email_body, "html"))
 
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.starttls()
         server.login(SMTP_USER, SMTP_PASS)
-        server.send_message(msg)
+        server.send_message(msg, to_addrs=email_to_list)
 
 
 def main():
     result = check_dodgers_result()
     print(result, f"Dodger Game Result {get_yesterday_date()}")
-    send_email(result)
+    send_email(True)
 
 
 if __name__ == "__main__":
